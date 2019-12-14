@@ -41,6 +41,7 @@ public class Main {
      * dùvod, proè jsem místo PointerInfo.getLocation() použil knihovnu jNativeHook i pøesto, že potøebuji znát lokaci kurzoru jen každou 1 sekundu je ten, že
      * jNativeHook dokáže zaregistrovat pohyb kurzoru i ve fullscreen høe, narozdíl od PointerInfo.
      */
+    //this comment server only for a testing purpose
     public static void main(String[] args) {
     	prepareGUI();
     	showMenu();
