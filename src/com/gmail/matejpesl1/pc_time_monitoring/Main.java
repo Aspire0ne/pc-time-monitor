@@ -23,15 +23,15 @@ public class Main {
     private static JFrame frame;
     private static int deadlineInSeconds;
     private static Session session;
-    private static JSpinner spnHours = new JSpinner();
-    private static JSpinner spnMinutes = new JSpinner();
-    private static JLabel lblHours = new JLabel();
-    private static JLabel lblMinutes = new JLabel();
-    private static JButton btnStartPauseResume = new JButton();
-    private static JButton btnCancel = new JButton();
-    private static JLabel lblWordStatus = new JLabel();
-    private static JLabel lblStatus = new JLabel();
-    private static JPanel panel = new JPanel();
+    private final static JSpinner spnHours = new JSpinner();
+    private final static JSpinner spnMinutes = new JSpinner();
+    private final static JLabel lblHours = new JLabel();
+    private final static JLabel lblMinutes = new JLabel();
+    private final static JButton btnStartPauseResume = new JButton();
+    private final static JButton btnCancel = new JButton();
+    private final static JLabel lblWordStatus = new JLabel();
+    private final static JLabel lblStatus = new JLabel();
+    private final static JPanel panel = new JPanel();
     public static enum TimerEndAction {SHUTDOWN_PC, SHOW_NOTICE};
     public static enum Mode {UNLIMITED, LIMITED};
     public static Mode mode;
@@ -41,7 +41,7 @@ public class Main {
      * dùvod, proè jsem místo PointerInfo.getLocation() použil knihovnu jNativeHook i pøesto, že potøebuji znát lokaci kurzoru jen každou 1 sekundu je ten, že
      * jNativeHook dokáže zaregistrovat pohyb kurzoru i ve fullscreen høe, narozdíl od PointerInfo.
      */
-    //this comment server only for a testing purpose
+
     public static void main(String[] args) {
     	prepareGUI();
     	showMenu();
