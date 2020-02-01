@@ -38,8 +38,8 @@ public class Main {
     public static TimerEndAction action;
     
     /*
-     * dùvod, proè jsem místo PointerInfo.getLocation() použil knihovnu jNativeHook i pøesto, že potøebuji znát lokaci kurzoru jen každou 1 sekundu je ten, že
-     * jNativeHook dokáže zaregistrovat pohyb kurzoru i ve fullscreen høe, narozdíl od PointerInfo.
+     * The reason why I used jNtiveHook library instead of PointerInfo.getLocation() even tho I don't need to know the pointer
+     * location more than once every second is because jNativeHook is able to register mouse movements while in full-screen game. 
      */
 
     public static void main(String[] args) {
