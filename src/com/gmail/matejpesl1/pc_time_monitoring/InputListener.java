@@ -56,7 +56,7 @@ public class InputListener implements NativeKeyListener, NativeMouseInputListene
 			switch (action) {
 			case ADD: {
 				if (!registered) {
-					GlobalScreen.registerNativeHook();	
+					GlobalScreen.registerNativeHook();
 				}
 			} break;
 			case REMOVE: {

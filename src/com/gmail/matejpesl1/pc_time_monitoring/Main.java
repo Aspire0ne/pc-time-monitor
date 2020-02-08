@@ -9,7 +9,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+
+import java.awt.AWTException;
 import java.awt.Font;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -36,6 +44,7 @@ public class Main {
     public static enum Mode {UNLIMITED, LIMITED};
     public static Mode mode;
     public static TimerEndAction action;
+    public static boolean ghost = false;
     
     /*
      * The reason why I used jNtiveHook library instead of PointerInfo.getLocation() even tho I don't need to know the pointer
@@ -70,20 +79,19 @@ public class Main {
     	btnYes.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 13));
     	btnYes.setBounds(100, 57, 83, 50);
     	panel.add(btnYes);
+    	
     	if (!actionListenerExists(btnYes) && !actionListenerExists(btnNo)) {
-        	btnYes.addActionListener(new ActionListener() {
-        		public void actionPerformed(ActionEvent e) {
+        	btnYes.addActionListener( e -> {
         			mode = Mode.LIMITED;
         			showSelectActionScreen();
-        		}
         	});
-        	btnNo.addActionListener(new ActionListener() {
-        		public void actionPerformed(ActionEvent e) {
+        	
+        	btnNo.addActionListener(e -> {
         			mode = Mode.UNLIMITED;
         			showUnlimitedMonitoringScreen();
-        		}
-        	});	
+        	});
     	}
+    	
         frame.setVisible(true);
     }
 
@@ -105,6 +113,16 @@ public class Main {
          lblStatus.setVerticalAlignment(SwingConstants.TOP);
          lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
          lblStatus.setBounds(70, 62, 314, 48);
+         
+         JButton btnGhost = new JButton("");
+     	btnGhost.setToolTipText("Schová se do system tray");
+     	btnGhost.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 8));
+     	btnGhost.setBounds(panel.getWidth() - 25, panel.getHeight() - 30, 25, 30);
+     	panel.add(btnGhost);
+         	
+           	btnGhost.addActionListener(e -> {
+     			turnOnGhost();
+         });
      
          if (!actionListenerExists(btnStartPauseResume) && !actionListenerExists(btnCancel)) {
              btnStartPauseResume.addActionListener(new ActionListener() {
@@ -116,6 +134,7 @@ public class Main {
                  		}
              	}
              });
+             
          	btnCancel.addActionListener(new ActionListener() {
          		public void actionPerformed(ActionEvent e) {
          			switch (btnCancel.getText()) {
@@ -125,7 +144,43 @@ public class Main {
          		}
          	});
          }
-         frame.setVisible(true);
+         if (!ghost) {
+        	 frame.setVisible(true);	 
+         } else {
+        	 frame.setVisible(false);
+        	 toSystemTray();
+         }
+         
+    }
+    
+    public static void toSystemTray() {
+		System.out.println("system tray function started");
+		Image image = Toolkit.getDefaultToolkit().getImage("");
+
+	    final PopupMenu popup = new PopupMenu();
+	    final TrayIcon trayIcon = new TrayIcon(image, "PC Timer", popup);
+	    final SystemTray tray = SystemTray.getSystemTray();
+
+	    MenuItem exitItem = new MenuItem("Exit");
+	    MenuItem openItem = new MenuItem("otevøít program");
+	    exitItem.addActionListener(e -> {
+	            programClosed();
+	    });
+	    
+	    openItem.addActionListener(e -> {
+	    	tray.remove(trayIcon);
+            turnOffGhost();
+    });
+	    
+	    popup.add(exitItem);
+	    popup.add(openItem);
+	    trayIcon.setPopupMenu(popup);
+	
+	    try {
+	        tray.add(trayIcon);
+	    } catch (AWTException e) {
+	        System.out.println("TrayIcon could not be added.");
+	    }
     }
     
     private static void addAllUnlimitedMonitoringComponents() {
@@ -200,18 +255,22 @@ public class Main {
         frame.setVisible(false);
 	    frame.addWindowListener(new WindowAdapter() {
 	    	public void windowClosing(WindowEvent windowEvent) {
-	    		if (state == RunState.STOPPED) {
-	    			System.exit(0);
-	    		}
-	    		String[] options = {"ano", "ne"};
-	            int choice = JOptionPane.showOptionDialog(null, "Opravdu chcete pøerušit monitoring a zavøít program?", "Vypnutí programu",
-	            		JOptionPane.DEFAULT_OPTION, JOptionPane.YES_NO_OPTION, null, options, options[0]);
-	            if (choice == 0) {
-	            	System.exit(0);
-	            }
+	    		programClosed();
 	    		}        
-	    	}); 
+	    	});
 	    }
+    
+    private static void programClosed() {
+		if (state == RunState.STOPPED) {
+			System.exit(0);
+		}
+		String[] options = {"ano", "ne"};
+        int choice = JOptionPane.showOptionDialog(null, "Opravdu chcete pøerušit monitoring a zavøít program?", "Vypnutí programu",
+        		JOptionPane.DEFAULT_OPTION, JOptionPane.YES_NO_OPTION, null, options, options[0]);
+        if (choice == 0) {
+        	System.exit(0);
+        }
+    }
     
     private static void addAllLimitedMonitoringComponents() {
     	panel.add(spnMinutes);
@@ -268,25 +327,44 @@ public class Main {
         lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
         lblStatus.setBounds(70, 62, 314, 50);
         
+    	JButton btnGhost = new JButton("");
+    	btnGhost.setToolTipText("Schová se do system tray");
+    	btnGhost.setFont(new Font("Yu Gothic UI Semibold", Font.BOLD, 8));
+    	btnGhost.setBounds(panel.getWidth() - 25, panel.getHeight() - 30, 25, 30);
+    	panel.add(btnGhost);
+        
         if (!actionListenerExists(btnStartPauseResume)) {
-        	btnStartPauseResume.addActionListener(new ActionListener() {
-        		public void actionPerformed(ActionEvent e) {
+        	btnStartPauseResume.addActionListener(e -> {
         			switch (state) {
         			case RUNNING: pauseButtonPressed(); break;
         			case PAUSED: resumeButtonPressed(); break;
         			case STOPPED: startButtonPressed(); break;
         			}
-                }
         	});
-        	btnCancel.addActionListener(new ActionListener() {
-        		public void actionPerformed(ActionEvent e) {
+        	
+        	btnCancel.addActionListener(e -> {
         			switch (btnCancel.getText()) {
         			case "Menu": showMenu(); break;
         			case "Zrušit": stopButtonPressed(); break;
         			}
-            	}
             });
+        	
+          	btnGhost.addActionListener(e -> {
+    			turnOnGhost();
+        });
       }
+    }
+    
+    public static void turnOnGhost() {
+    	ghost = true;
+    	frame.setVisible(false);
+    	toSystemTray();
+    }
+    
+    public static void turnOffGhost() {
+    	ghost = false;
+    	frame.setVisible(true);
+    	
     }
     
     public static boolean actionListenerExists(JButton butt) {

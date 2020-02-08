@@ -63,8 +63,10 @@ public class Session extends Thread {
 	}
 	
 	public void resetIdleTimer() {
-		idleTimeTimer.reset();
-		idleTimeTimer.start();
+		if (idleTimeTimer.getTime() > 1000 && idleTimeTimer.isStarted()) {
+			idleTimeTimer.reset();
+			idleTimeTimer.start();	
+		}
 	}
 	
 	public String getRemainingTimeInWords() {
@@ -126,7 +128,6 @@ public class Session extends Thread {
 		stopwatch = null;
 		listener = null;
 		running = false;
-		System.gc();
 	}
 	
 	
