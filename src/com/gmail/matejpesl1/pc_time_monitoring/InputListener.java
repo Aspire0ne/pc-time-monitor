@@ -14,8 +14,8 @@ import org.jnativehook.mouse.NativeMouseWheelEvent;
 import org.jnativehook.mouse.NativeMouseWheelListener;
 
 public class InputListener implements NativeKeyListener, NativeMouseInputListener, NativeMouseWheelListener {
-	Session session;
-	private long numberOfClicks;
+	private Session session;
+	private int numberOfClicks;
 	private enum ListenersAction{REMOVE, ADD};
 	
 	public InputListener(Session session) {
@@ -25,7 +25,7 @@ public class InputListener implements NativeKeyListener, NativeMouseInputListene
 	
 	private void turnOffDataLogging() {
 		LogManager.getLogManager().reset();
-		Logger.getLogger(GlobalScreen.class.getPackage().getName()).setLevel(Level.OFF);
+		Logger.getLogger(InputListener.class.getPackage().getName()).setLevel(Level.OFF);
 	}
 	
 	public void startListening() {
@@ -54,34 +54,35 @@ public class InputListener implements NativeKeyListener, NativeMouseInputListene
 		boolean registered = GlobalScreen.isNativeHookRegistered();
 		try {
 			switch (action) {
-			case ADD: {
-				if (!registered) {
-					GlobalScreen.registerNativeHook();
-				}
-			} break;
-			case REMOVE: {
-				if (registered) {
-					GlobalScreen.unregisterNativeHook();
-				}
-			} break;
+				case ADD: {
+					if (!registered) {
+						GlobalScreen.registerNativeHook();
+					}
+				} break;
+				case REMOVE: {
+					if (registered) {
+						GlobalScreen.unregisterNativeHook();
+					}
+				} break;
 			}
 		}
 		catch (NativeHookException e) {
 			e.printStackTrace();
-			session.cancelSession("Nastala chyba pøi zaznamenávání aktivity na poèítaèi.");
 			if (registered) {
 				try {
 					GlobalScreen.unregisterNativeHook();
 				} catch (NativeHookException e1) {
 					e1.printStackTrace();
 				}
+			} else {
+				session.interruptSession("Nastala chyba pøi zapínání záznamu. zkuste to, prosím, znovu.");
 			}
 		}
 	}
 	
 	public void stopListening() {
-		manipulateNativeHook(ListenersAction.REMOVE);
 		manipulateAllListeners(ListenersAction.REMOVE);
+		manipulateNativeHook(ListenersAction.REMOVE);
 	}
 	
 	public long getTotalMouseClicks() {
@@ -110,7 +111,9 @@ public class InputListener implements NativeKeyListener, NativeMouseInputListene
 
 	@Override
 	public void nativeMousePressed(NativeMouseEvent arg0) {
-		++numberOfClicks;
+		if (arg0.getButton() == 1) {
+			++numberOfClicks;	
+		}
 		session.resetIdleTimer();
 	}
 

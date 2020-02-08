@@ -63,7 +63,7 @@ public class Session extends Thread {
 	}
 	
 	public void resetIdleTimer() {
-		if (idleTimeTimer.getTime() > 1000 && idleTimeTimer.isStarted()) {
+		if (idleTimeTimer.getTime() > 1000) {
 			idleTimeTimer.reset();
 			idleTimeTimer.start();	
 		}
@@ -98,19 +98,19 @@ public class Session extends Thread {
 		remainingTime = deadline - elapsedTime;
 	}
 	
-	public void cancelSession(String error) {
+	public void interruptSession(String error) {
 		Main.showRuntimeError(error);
 		stopSession();
 	}
 	
 	public void pauseSession() {
 		setStopwatchPausedState(true);
-			listener.stopListening();
+		listener.stopListening();
 	}
 	
 	public void resumeSession() {
 		setStopwatchPausedState(false);
-			listener.startListening();	
+		listener.startListening();	
 	}
 	
 	public void stopSession() {
