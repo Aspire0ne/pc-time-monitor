@@ -1,4 +1,4 @@
-package com.gmail.matejpesl1.pc_time_monitoring;
+package com.gmail.matejpesl1.timemonitor;
 
 import java.util.logging.Level;
 import java.util.logging.LogManager;

@@ -1,9 +1,9 @@
-package com.gmail.matejpesl1.pc_time_monitoring;
+package com.gmail.matejpesl1.timemonitor;
 
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.time.StopWatch;
 
-import com.gmail.matejpesl1.pc_time_monitoring.Main.Mode;
+import com.gmail.matejpesl1.timemonitor.Main.Mode;
 
 public class Session extends Thread {
 	public static final int IDLE_TIME_STARTING_VALUE = 60;
