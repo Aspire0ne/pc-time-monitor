@@ -17,10 +17,12 @@ public class Session extends Thread {
 	private boolean inactive;
 	private long elapsedTime;
 	int idleCount;
+	private Main main;
 	
-	public Session(int deadline) {
+	public Session(int deadline, Main main) {
 		idleTimeTimer = new StopWatch();
 		this.deadline = deadline;
+		this.main = main;
 		stopwatch = new StopWatch();
 		running = true;
 	}
@@ -143,10 +145,10 @@ public class Session extends Thread {
 		listener = new InputListener(this);
 		listener.startListening();
 		while (running) {
-			Main.updateRemainingTime(getRemainingTimeInWords());
-			if (Main.mode == Mode.LIMITED) {
+			main.updateRemainingTime(getRemainingTimeInWords());
+			if (main.mode == Mode.LIMITED) {
 				if (remainingTime <= 0) {
-					Main.timerEnded();
+					main.timerEnded();
 					break;
 			}
 			

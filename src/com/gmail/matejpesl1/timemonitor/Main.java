@@ -28,23 +28,23 @@ import javax.swing.SwingConstants;
 public class Main {
 	public static enum RunState {RUNNING, PAUSED, STOPPED};
 	public static RunState state = RunState.STOPPED;
-    private static JFrame frame;
+    private JFrame frame;
     private static int deadlineInSeconds;
-    private static Session session;
-    private final static JSpinner spnHours = new JSpinner();
-    private final static JSpinner spnMinutes = new JSpinner();
-    private final static JLabel lblHours = new JLabel();
-    private final static JLabel lblMinutes = new JLabel();
-    private final static JButton btnStartPauseResume = new JButton();
-    private final static JButton btnCancel = new JButton();
-    private final static JLabel lblWordStatus = new JLabel();
-    private final static JLabel lblStatus = new JLabel();
-    private final static JPanel panel = new JPanel();
-    public static enum TimerEndAction {SHUTDOWN_PC, SHOW_NOTICE};
-    public static enum Mode {UNLIMITED, LIMITED};
-    public static Mode mode;
-    public static TimerEndAction action;
-    public static boolean ghost = false;
+    private Session session;
+    private final JSpinner spnHours = new JSpinner();
+    private final JSpinner spnMinutes = new JSpinner();
+    private final JLabel lblHours = new JLabel();
+    private final JLabel lblMinutes = new JLabel();
+    private final JButton btnStartPauseResume = new JButton();
+    private final JButton btnCancel = new JButton();
+    private final JLabel lblWordStatus = new JLabel();
+    private final JLabel lblStatus = new JLabel();
+    private final JPanel panel = new JPanel();
+    public enum TimerEndAction {SHUTDOWN_PC, SHOW_NOTICE};
+    public enum Mode {UNLIMITED, LIMITED};
+    public Mode mode;
+    public TimerEndAction action;
+    public boolean ghost;
     
     /*
      * The reason why I used jNtiveHook library instead of PointerInfo.getLocation() even tho I don't need to know the pointer
@@ -52,11 +52,12 @@ public class Main {
      */
 
     public static void main(String[] args) {
-    	prepareGUI();
-    	showMenu();
+    	Main main = new Main();
+    	main.prepareGUI();
+    	main.showMenu();
     }
     
-    public static void showMenu() {
+    private void showMenu() {
     	clearPanel();
     	JButton unlimited = new JButton("do vypnutí");
     	unlimited.setText("do vypnutí");
@@ -95,7 +96,7 @@ public class Main {
         frame.setVisible(true);
     }
 
-    public static void showUnlimitedMonitoringScreen() {
+    private void showUnlimitedMonitoringScreen() {
     	clearPanel();
     	addAllUnlimitedMonitoringComponents();
          
@@ -153,7 +154,7 @@ public class Main {
          
     }
     
-    public static void toSystemTray() {
+    public void toSystemTray() {
 		System.out.println("system tray function started");
 		Image image = Toolkit.getDefaultToolkit().getImage("");
 
@@ -164,7 +165,7 @@ public class Main {
 	    MenuItem exitItem = new MenuItem("Exit");
 	    MenuItem openItem = new MenuItem("otevøít program");
 	    exitItem.addActionListener(e -> {
-	            programClosed();
+	            onClose();
 	    });
 	    
 	    openItem.addActionListener(e -> {
@@ -183,14 +184,14 @@ public class Main {
 	    }
     }
     
-    private static void addAllUnlimitedMonitoringComponents() {
+    private void addAllUnlimitedMonitoringComponents() {
         panel.add(btnCancel);
         panel.add(btnStartPauseResume);
         panel.add(lblWordStatus);
         panel.add(lblStatus);
     }
     
-    private static void showSelectActionScreen() {
+    private void showSelectActionScreen() {
     	panel.removeAll();
     	panel.revalidate();
     	panel.repaint();
@@ -242,7 +243,7 @@ public class Main {
         panel.add(btnBack);
     }
     
-    private static void prepareGUI() {
+    private void prepareGUI() {
         panel.setLayout(null);
         lblStatus.setText("<html><strong>monitorování nezaèalo</strong></html>");
         frame = new JFrame("Monitor èasu na PC");
@@ -255,12 +256,12 @@ public class Main {
         frame.setVisible(false);
 	    frame.addWindowListener(new WindowAdapter() {
 	    	public void windowClosing(WindowEvent windowEvent) {
-	    		programClosed();
+	    		onClose();
 	    		}        
 	    	});
 	    }
     
-    private static void programClosed() {
+    private static void onClose() {
 		if (state == RunState.STOPPED) {
 			System.exit(0);
 		}
@@ -272,7 +273,7 @@ public class Main {
         }
     }
     
-    private static void addAllLimitedMonitoringComponents() {
+    private void addAllLimitedMonitoringComponents() {
     	panel.add(spnMinutes);
         panel.add(spnHours);
         panel.add(btnCancel);
@@ -283,13 +284,13 @@ public class Main {
         panel.add(lblStatus);
     }
     
-    public static void clearPanel() {
+    private void clearPanel() {
     	panel.removeAll();
     	panel.revalidate();
     	panel.repaint();
     }
     
-    public static void showLimitedMonitoringScreen() {
+    private void showLimitedMonitoringScreen() {
     	clearPanel();
         addAllLimitedMonitoringComponents();
         spnHours.setToolTipText("Urèuje trvání èasovaèe");
@@ -355,35 +356,34 @@ public class Main {
       }
     }
     
-    public static void turnOnGhost() {
+    public void turnOnGhost() {
     	ghost = true;
     	frame.setVisible(false);
     	toSystemTray();
     }
     
-    public static void turnOffGhost() {
+    public void turnOffGhost() {
     	ghost = false;
     	frame.setVisible(true);
-    	
     }
     
-    public static boolean actionListenerExists(JButton butt) {
+    private boolean actionListenerExists(JButton butt) {
     	return butt.getActionListeners().length == 0 ? false : true;
     }
     
-    public static void resumeButtonPressed() {
+    private void resumeButtonPressed() {
     	changeState(RunState.RUNNING);
     }
     
-    public static void pauseButtonPressed() {
+    private void pauseButtonPressed() {
     	changeState(RunState.PAUSED);
     }
     
-    public static void stopButtonPressed() {
+    private void stopButtonPressed() {
     	changeState(RunState.STOPPED);
     }
     
-    public static void startButtonPressed() {
+    private void startButtonPressed() {
     	if (mode == Mode.LIMITED) {
    		 int minutes = (int)spnMinutes.getValue();
    		 int hours = (int)spnHours.getValue();
@@ -392,23 +392,25 @@ public class Main {
    		 changeState(RunState.RUNNING);	
    	 }
     
-    public static void updateRemainingTime(String remainingTimeInWords) {
-    	switch (mode) {
-    	case UNLIMITED: lblStatus.setText("<html><strong>uplynulo: ~ </strong>" + 
-    			Session.convertTimeToWords((int)session.getElapsedTime(TimeUnit.SECONDS)) +
-    			"<br><strong>celkový poèet kliknutí:</strong> " + session.getTotalNumberOfClicks() + "</html>"); break;
-    	case LIMITED: lblStatus.setText("<html><strong>Zbývá: ~ </strong>" + remainingTimeInWords + "<br/><strong>uplynulo: ~ </strong>" +
-    			Session.convertTimeToWords((int)session.getElapsedTime(TimeUnit.SECONDS)) + 
-    			"<br><strong>celkový poèet kliknutí:</strong> " + session.getTotalNumberOfClicks() + "</html>"); break;
+    public void updateRemainingTime(String remainingTimeInWords) {
+    	StringBuilder textToSet = new StringBuilder("<html>");
+    	if (mode == Mode.LIMITED) {
+    		textToSet.append("<strong>Zbývá: ~ </strong>" + remainingTimeInWords + "<br>");	
     	}
+    	textToSet.append("<strong>uplynulo: ~ </strong>")
+    			.append(Session.convertTimeToWords((int)session.getElapsedTime(TimeUnit.SECONDS)))
+    			.append("<br><strong>celkový poèet kliknutí: </strong>")
+    			.append(session.getTotalNumberOfClicks())
+    			.append("</html>");
+    	lblStatus.setText(textToSet.toString());
     }
     
-    public static void timerEnded() {
+    public void timerEnded() {
     	changeState(RunState.STOPPED);
     	doTimerEndAction(action);
     }
     
-    public static void doTimerEndAction(TimerEndAction action) {
+    private void doTimerEndAction(TimerEndAction action) {
     	if (action == TimerEndAction.SHOW_NOTICE) {
         	boolean supported = frame.isAlwaysOnTopSupported();
         	if (supported) {
@@ -434,7 +436,7 @@ public class Main {
     	JOptionPane.showMessageDialog(null, error, "Chyba", JOptionPane.ERROR_MESSAGE);
     }
     
-    public static void changeState(RunState toState) {
+    private void changeState(RunState toState) {
     	switch (toState) {
     		case RUNNING: {
     			if (state == RunState.PAUSED) {
@@ -444,7 +446,7 @@ public class Main {
     				btnCancel.setVisible(true);
     				spnHours.setFocusable(false);
     				spnMinutes.setFocusable(false);
-    				session = new Session(deadlineInSeconds);
+    				session = new Session(deadlineInSeconds, this);
     				session.start();
     				spnHours.setFocusable(false);
     				spnMinutes.setFocusable(false);
@@ -471,9 +473,5 @@ public class Main {
        		 	session.pauseSession();
     		} break;
     	}
-    }
-
-    public static void showInputError(String error) {
-    	lblStatus.setText(error);
     }
 }
