@@ -144,29 +144,29 @@ public class Session extends Thread {
 		startIdleTimeTimer();
 		listener = new InputListener(this);
 		listener.startListening();
+		
 		while (running) {
 			main.updateRemainingTime(getRemainingTimeInWords());
-			if (main.mode == Mode.LIMITED) {
-				if (remainingTime <= 0) {
-					main.timerEnded();
-					break;
-			}
 			
+			if (main.mode == Mode.LIMITED && remainingTime <= 0) {
+				main.timerEnded();
+				break;
+			}
+			System.out.println(idleTimeTimer.getTime(TimeUnit.SECONDS));
 			if (idleTimeTimer.getTime(TimeUnit.SECONDS) >= IDLE_TIME_STARTING_VALUE) {
 				setStopwatchPausedState(true);
 				if (inactive == false) {
 					inactive = true;
-					totalIdleTime = totalIdleTime + IDLE_TIME_STARTING_VALUE;
+					totalIdleTime += IDLE_TIME_STARTING_VALUE;
 					++idleCount;
 				} else {
-					totalIdleTime = totalIdleTime + (idleTimeTimer.getTime(TimeUnit.SECONDS) - IDLE_TIME_STARTING_VALUE);
+					totalIdleTime += (idleTimeTimer.getTime(TimeUnit.SECONDS) - IDLE_TIME_STARTING_VALUE);
 				}
 			} else {
 				if (inactive == true) {
 					setStopwatchPausedState(false);
 					inactive = false;
 				}
-			}
 			}
 			
 			try {
